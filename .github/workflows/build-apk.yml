@@ -1,74 +1,77 @@
-name: Gerar APK Teclado Sorteio
+nome: Gerar APK Teclado Sorteio
 
-on:
-  workflow_dispatch:
-  push:
-    branches: [ "main" ]
-    paths:
+sobre:
+  despacho de fluxo de trabalho:
+  empurrar:
+    ramos: [ "principal" ]
+    caminhos:
       - ".github/workflows/build-apk.yml"
 
-permissions:
-  contents: write
+permissões:
+  Conteúdo: escrever
 
-jobs:
-  build:
+empregos:
+  construir:
     runs-on: ubuntu-latest
+    ambiente:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
 
-    steps:
-      - name: Preparar Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
+    passos:
+      - nome: Preparar Java
+        utiliza: actions/setup-java@v4
+        com:
+          Distribuição: temurin
+          versão java: "17"
 
-      - name: Preparar Android SDK
-        uses: android-actions/setup-android@v3
+      - nome: Preparar Android SDK 35
+        ambiente:
+          ANDROID_HOME: /usr/local/lib/android/sdk
+          ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+        executar: |
+          sim | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --licenses >/dev/null || true
+          /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
-      - name: Instalar Android SDK 35
-        run: |
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - nome: Preparar Gradle
+        usa: gradle/actions/setup-gradle@v4
+        com:
+          versão-gradle: "8.7"
 
-      - name: Preparar Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: "8.7"
-
-      - name: Criar projeto Android
-        run: |
+      - nome: Criar projeto Android
+        executar: |
           mkdir -p app/src/main/java/com/tecladosorteio/app
           mkdir -p app/src/main/res/xml
 
           cat > settings.gradle <<'EOF'
-          pluginManagement {
-              repositories {
-                  google()
+          gerenciamentoDePlugins {
+              repositórios {
+                  Google()
                   mavenCentral()
                   gradlePluginPortal()
               }
           }
-          dependencyResolutionManagement {
+          gerenciamentoDeResoluçãoDeDependências {
               repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-              repositories {
-                  google()
+              repositórios {
+                  Google()
                   mavenCentral()
               }
           }
           rootProject.name = "TecladoSorteio"
-          include(":app")
-          EOF
+          incluir(":app")
+          Fim do jogo
 
           cat > build.gradle <<'EOF'
           plugins {
-              id 'com.android.application' version '8.5.2' apply false
+              id 'com.android.application' versão '8.5.2' aplicar falso
           }
-          EOF
+          Fim do jogo
 
-          cat > gradle.properties <<'EOF'
+          gato > gradle.properties <<'EOF'
           org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
           android.useAndroidX=false
           android.nonTransitiveRClass=true
-          EOF
+          Fim do jogo
 
           cat > app/build.gradle <<'EOF'
           plugins {
@@ -79,16 +82,16 @@ jobs:
               namespace 'com.tecladosorteio.app'
               compileSdk 35
 
-              defaultConfig {
+              Configuração padrão {
                   applicationId "com.tecladosorteio.app"
                   minSdk 26
                   targetSdk 35
-                  versionCode 1
-                  versionName "1.0"
+                  código da versão 1
+                  nome da versão "1.0"
               }
 
               buildTypes {
-                  release {
+                  liberar {
                       minifyEnabled false
                   }
               }
@@ -98,27 +101,27 @@ jobs:
                   targetCompatibility JavaVersion.VERSION_17
               }
           }
-          EOF
+          Fim do jogo
 
           cat > app/src/main/AndroidManifest.xml <<'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-              <application
+              <aplicativo>
                   android:allowBackup="true"
                   android:label="Teclado Sorteio"
                   android:supportsRtl="true"
                   android:theme="@android:style/Theme.Material.Light.NoActionBar">
 
-                  <activity
+                  <atividade
                       android:name=".MainActivity"
                       android:exported="true">
                       <intent-filter>
                           <action android:name="android.intent.action.MAIN" />
                           <category android:name="android.intent.category.LAUNCHER" />
                       </intent-filter>
-                  </activity>
+                  </atividade>
 
-                  <service
+                  <serviço
                       android:name=".GiveawayKeyboardService"
                       android:exported="true"
                       android:label="Teclado Sorteio"
@@ -126,23 +129,23 @@ jobs:
                       <intent-filter>
                           <action android:name="android.view.InputMethod" />
                       </intent-filter>
-                      <meta-data
+                      <meta-dados
                           android:name="android.view.im"
                           android:resource="@xml/input_method" />
-                  </service>
-              </application>
-          </manifest>
-          EOF
+                  </serviço>
+              </aplicação>
+          </manifesto>
+          Fim do jogo
 
           cat > app/src/main/res/xml/input_method.xml <<'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <input-method xmlns:android="http://schemas.android.com/apk/res/android"
               android:settingsActivity="com.tecladosorteio.app.MainActivity"
               android:supportsSwitchingToNextInputMethod="true" />
-          EOF
+          Fim do jogo
 
           cat > app/src/main/java/com/tecladosorteio/app/MainActivity.java <<'EOF'
-          package com.tecladosorteio.app;
+          pacote com.tecladosorteio.app;
 
           import android.app.Activity;
           import android.content.ClipData;
@@ -169,32 +172,32 @@ jobs:
           import java.nio.charset.StandardCharsets;
           import java.util.ArrayList;
           import java.util.Collections;
-          import java.util.LinkedHashSet;
+          importar java.util.LinkedHashSet;
           import java.util.List;
           import java.util.regex.Matcher;
           import java.util.regex.Pattern;
 
           public class MainActivity extends Activity {
               private static final int PICK_FILES = 41;
-              private EditText listBox;
-              private TextView stats;
+              Caixa de texto editável privada;
+              Estatísticas privadas do TextView;
 
-              @Override
+              @Substituir
               protected void onCreate(Bundle savedInstanceState) {
                   super.onCreate(savedInstanceState);
 
                   ScrollView scroll = new ScrollView(this);
-                  LinearLayout root = new LinearLayout(this);
-                  root.setOrientation(LinearLayout.VERTICAL);
-                  root.setPadding(dp(16), dp(18), dp(16), dp(32));
+                  LinearLayout raiz = novo LinearLayout(this);
+                  raiz.setOrientation(LinearLayout.VERTICAL);
+                  raiz.setPadding(dp(16), dp(18), dp(16), dp(32));
                   scroll.addView(root);
 
                   TextView title = text("Teclado Sorteio", 27, true);
-                  root.addView(title);
-                  root.addView(text(
+                  raiz.adicionarVisualização(título);
+                  raiz.adicionarVisualização(texto(
                           "Cole seus @ ou importe arquivos JSON/TXT exportados do Instagram. " +
-                          "Depois use o teclado especial dentro da prÃ³pria postagem.",
-                          15, false));
+                          "Depois use o teclado especial dentro da própria postagem.",
+                          15, falso));
 
                   listBox = new EditText(this);
                   listBox.setHint("@pessoa1\n@pessoa2\n@pessoa3");
@@ -203,234 +206,234 @@ jobs:
                   listBox.setText(joinQueue(UserStore.queue(this)));
                   root.addView(listBox, full());
 
-                  Button importButton = button("Importar JSON/TXT do Instagram");
+                  Botão importButton = button("Importar JSON/TXT do Instagram");
                   importButton.setOnClickListener(v -> chooseFiles());
-                  root.addView(importButton);
+                  raiz.adicionarVisualização(botãodeimportação);
 
                   Button saveButton = button("Salvar e embaralhar lista");
                   saveButton.setOnClickListener(v -> saveList(true));
-                  root.addView(saveButton);
+                  raiz.adicionarVisualização(botãoSalvar);
 
-                  stats = text("", 14, true);
-                  root.addView(stats);
+                  estatísticas = texto("", 14, verdadeiro);
+                  raiz.adicionarVisualização(estatísticas);
 
-                  Button enable = button("Ativar Teclado Sorteio");
+                  Habilitar botão = button("Ativar Teclado Sorteio");
                   enable.setOnClickListener(v ->
-                          startActivity(new Intent(Settings.ACTION_INPUT_METHOD_SETTINGS)));
-                  root.addView(enable);
+                          iniciarAtividade(novo Intent(Configurações.ACTION_INPUT_METHOD_SETTINGS)));
+                  raiz.adicionarVisualização(habilitar);
 
-                  Button choose = button("Selecionar Teclado Sorteio");
-                  choose.setOnClickListener(v -> {
-                      InputMethodManager imm =
+                  Botão escolher = button("Selecionar Teclado Sorteio");
+                  escolha.setOnClickListener(v -> {
+                      Gerenciador de Métodos de Entrada imm =
                               (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
                       imm.showInputMethodPicker();
                   });
-                  root.addView(choose);
+                  raiz.adicionarVisualização(escolha);
 
-                  Button reset = button("Zerar progresso");
+                  Botão reset = button("Zerar progresso");
                   reset.setOnClickListener(v -> {
                       UserStore.setIndex(this, 0);
-                      refresh();
+                      atualizar();
                       Toast.makeText(this, "Progresso zerado.", Toast.LENGTH_SHORT).show();
                   });
-                  root.addView(reset);
+                  raiz.adicionarVisualização(redefinir);
 
-                  root.addView(text(
+                  raiz.adicionarVisualização(texto(
                           "\nUso: abra a postagem no Instagram, toque em comentar, escolha o " +
                           "Teclado Sorteio e toque em INSERIR @... Depois toque em Enviar no " +
-                          "Instagram. O prÃ³ximo nome jÃ¡ ficarÃ¡ preparado.\n\n" +
-                          "Privacidade: este app nÃ£o possui permissÃ£o de Internet.",
-                          14, false));
+                          "Instagram. O próximo nome já ficou preparado.\n\n" +
+                          "Privacidade: este app não possui permissão de Internet.",
+                          14, falso));
 
                   setContentView(scroll);
-                  refresh();
+                  atualizar();
               }
 
-              private void chooseFiles() {
+              privado void escolherArquivos() {
                   Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                  i.addCategory(Intent.CATEGORY_OPENABLE);
+                  i.adicionarCategoria(Intent.CATEGORY_OPENABLE);
                   i.setType("*/*");
                   i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                   i.putExtra(Intent.EXTRA_MIME_TYPES,
-                          new String[]{"application/json", "text/plain", "text/json"});
-                  startActivityForResult(i, PICK_FILES);
+                          novo String[]{"application/json", "text/plain", "text/json"});
+                  iniciarAtividadeParaResultado(i, SELECIONAR_ARQUIVOS);
               }
 
-              @Override
+              @Substituir
               protected void onActivityResult(int requestCode, int resultCode, Intent data) {
                   super.onActivityResult(requestCode, resultCode, data);
-                  if (requestCode != PICK_FILES || resultCode != RESULT_OK || data == null) return;
+                  se (requestCode != PICK_FILES || resultCode != RESULT_OK || data == null) retornar;
 
-                  LinkedHashSet<String> users = parseUsers(listBox.getText().toString());
+                  LinkedHashSet<String> usuários = parseUsers(listBox.getText().toString());
 
-                  try {
+                  tentar {
                       ClipData clip = data.getClipData();
-                      if (clip != null) {
-                          for (int i = 0; i < clip.getItemCount(); i++) {
+                      se (clip != null) {
+                          para (int i = 0; i < clip.getItemCount(); i++) {
                               Uri uri = clip.getItemAt(i).getUri();
-                              users.addAll(parseUsers(readUri(uri)));
+                              usuários.adicionarTodos(analisarUsuários(lerUri(uri)));
                           }
                       } else if (data.getData() != null) {
-                          users.addAll(parseUsers(readUri(data.getData())));
+                          usuários.adicionarTodos(parseUsers(readUri(dados.getData())));
                       }
 
                       listBox.setText(joinSet(users));
-                      Toast.makeText(this,
+                      Toast.makeText(isto,
                               users.size() + " perfis encontrados.", Toast.LENGTH_LONG).show();
                   } catch (Exception e) {
-                      Toast.makeText(this,
-                              "NÃ£o consegui ler um dos arquivos.", Toast.LENGTH_LONG).show();
+                      Toast.makeText(isto,
+                              "Não consegui ler um dos arquivos.", Toast.LENGTH_LONG).show();
                   }
               }
 
               private String readUri(Uri uri) throws Exception {
-                  try (InputStream in = getContentResolver().openInputStream(uri);
+                  tente (InputStream em = getContentResolver().openInputStream(uri);
                        ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-                      if (in == null) return "";
-                      byte[] buf = new byte[8192];
+                      se (in == nulo) retorne "";
+                      byte[] buf = novo byte[8192];
                       int n;
-                      while ((n = in.read(buf)) != -1) out.write(buf, 0, n);
-                      return out.toString(StandardCharsets.UTF_8.name());
+                      enquanto ((n = in.read(buf)) != -1) out.write(buf, 0, n);
+                      retornar out.toString(StandardCharsets.UTF_8.name());
                   }
               }
 
               private LinkedHashSet<String> parseUsers(String raw) {
                   LinkedHashSet<String> out = new LinkedHashSet<>();
-                  if (raw == null) return out;
+                  se (raw == null) retorne out;
 
-                  String trimmed = raw.trim();
+                  String aparada = raw.trim();
                   boolean looksJson = trimmed.startsWith("{") || trimmed.startsWith("[");
 
-                  Pattern jsonValue = Pattern.compile(
-                          "\\\"value\\\"\\s*:\\s*\\\"([A-Za-z0-9._]{1,30})\\\"");
-                  Matcher jm = jsonValue.matcher(raw);
-                  while (jm.find()) out.add(jm.group(1));
+                  Padrão jsonValue = Padrão.compile(
+                          "\\\"valor\\\"\\s*:\\s*\\\"([A-Za-z0-9._]{1,30})\\\"");
+                  Correspondente jm = jsonValue.matcher(raw);
+                  enquanto (jm.find()) out.add(jm.group(1));
 
                   Pattern jsonTitle = Pattern.compile(
-                          "\\\"title\\\"\\s*:\\s*\\\"([A-Za-z0-9._]{1,30})\\\"");
+                          "\\\"título\\\"\\s*:\\s*\\\"([A-Za-z0-9._]{1,30})\\\"");
                   Matcher jt = jsonTitle.matcher(raw);
-                  while (jt.find()) out.add(jt.group(1));
+                  enquanto (jt.find()) out.add(jt.group(1));
 
-                  if (!looksJson) {
-                      Pattern atName = Pattern.compile(
+                  se (!pareceJson) {
+                      Padrão emNome = Padrão.compilar(
                               "(?<![A-Za-z0-9._])@([A-Za-z0-9._]{1,30})");
                       Matcher am = atName.matcher(raw);
-                      while (am.find()) out.add(am.group(1));
+                      enquanto (am.find()) out.add(am.group(1));
 
                       for (String token : raw.split("[,;\\n\\r\\t ]+")) {
                           String u = token.trim();
-                          if (u.startsWith("@")) u = u.substring(1);
+                          se (u.startsWith("@")) u = u.substring(1);
                           if (u.matches("[A-Za-z0-9._]{1,30}")) out.add(u);
                       }
                   }
-                  return out;
+                  retornar para fora;
               }
 
-              private void saveList(boolean shuffle) {
+              privado void salvarLista(booleano shuffle) {
                   List<String> q = new ArrayList<>(parseUsers(listBox.getText().toString()));
-                  if (shuffle) Collections.shuffle(q);
+                  se (embaralhar) Collections.shuffle(q);
                   UserStore.saveQueue(this, q);
                   listBox.setText(joinQueue(q));
-                  refresh();
-                  Toast.makeText(this,
+                  atualizar();
+                  Toast.makeText(isto,
                           "Lista salva com " + q.size() + " perfis.", Toast.LENGTH_LONG).show();
               }
 
-              private void refresh() {
+              privado void refresh() {
                   List<String> q = UserStore.queue(this);
                   int idx = UserStore.index(this);
-                  if (stats != null) {
+                  se (estatísticas != nulo) {
                       stats.setText("Total: " + q.size() +
-                              "   |   usados: " + idx +
-                              "   |   restantes: " + Math.max(0, q.size() - idx));
+                              " |usos: " + idx +
+                              " |restante: " + Math.max(0, q.size() - idx));
                   }
               }
 
               private String joinQueue(List<String> q) {
-                  StringBuilder s = new StringBuilder();
+                  StringBuilder s = novo StringBuilder();
                   for (String u : q) s.append("@").append(u).append("\n");
-                  return s.toString();
+                  retornar s.toString();
               }
 
               private String joinSet(LinkedHashSet<String> q) {
-                  return joinQueue(new ArrayList<>(q));
+                  retornar joinQueue(new ArrayList<>(q));
               }
 
               private TextView text(String value, int sp, boolean bold) {
                   TextView t = new TextView(this);
-                  t.setText(value);
+                  t.setText(valor);
                   t.setTextSize(sp);
                   t.setTextColor(Color.BLACK);
                   t.setPadding(0, dp(6), 0, dp(6));
-                  if (bold) t.setTypeface(null, android.graphics.Typeface.BOLD);
-                  return t;
+                  if (negrito) t.setTypeface(null, android.graphics.Typeface.BOLD);
+                  retornar t;
               }
 
-              private Button button(String label) {
-                  Button b = new Button(this);
-                  b.setText(label);
+              botão privado button(String label) {
+                  Botão b = novo Botão(este);
+                  b.setText(rótulo);
                   b.setAllCaps(false);
                   b.setTextSize(16);
-                  return b;
+                  retornar b;
               }
 
-              private LinearLayout.LayoutParams full() {
-                  LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(
+              privado LinearLayout.LayoutParams completo() {
+                  LinearLayout.LayoutParams p = novo LinearLayout.LayoutParams(
                           ViewGroup.LayoutParams.MATCH_PARENT,
                           ViewGroup.LayoutParams.WRAP_CONTENT);
                   p.setMargins(0, dp(6), 0, dp(6));
-                  return p;
+                  retornar p;
               }
 
-              private int dp(int n) {
-                  return Math.round(n * getResources().getDisplayMetrics().density);
+              int privado dp(int n) {
+                  retorne Math.round(n * getResources().getDisplayMetrics().density);
               }
 
               public static final class UserStore {
                   private static final String PREF = "teclado_sorteio";
-                  private static final String QUEUE = "queue";
-                  private static final String INDEX = "index";
+                  private static final String QUEUE = "fila";
+                  private static final String INDEX = "índice";
 
                   private static SharedPreferences p(Context c) {
-                      return c.getSharedPreferences(PREF, Context.MODE_PRIVATE);
+                      retornar c.getSharedPreferences(PREF, Context.MODE_PRIVATE);
                   }
 
                   public static void saveQueue(Context c, List<String> q) {
-                      JSONArray arr = new JSONArray();
-                      for (String u : q) arr.put(u);
+                      JSONArray arr = novo JSONArray();
+                      para (String u : q) arr.put(u);
                       p(c).edit()
                               .putString(QUEUE, arr.toString())
                               .putInt(INDEX, 0)
-                              .apply();
+                              .aplicar();
                   }
 
-                  public static List<String> queue(Context c) {
+                  public static List<String> fila(Context c) {
                       ArrayList<String> out = new ArrayList<>();
-                      try {
+                      tentar {
                           JSONArray arr = new JSONArray(p(c).getString(QUEUE, "[]"));
-                          for (int i = 0; i < arr.length(); i++) {
+                          para (int i = 0; i < arr.length(); i++) {
                               String u = arr.optString(i, "");
                               if (!u.isEmpty()) out.add(u);
                           }
-                      } catch (Exception ignored) {}
-                      return out;
+                      } catch (Exceção ignorada) {}
+                      retornar para fora;
                   }
 
                   public static int index(Context c) {
                       int i = p(c).getInt(INDEX, 0);
-                      return Math.max(0, Math.min(i, queue(c).size()));
+                      retorne Math.max(0, Math.min(i, queue(c).size()));
                   }
 
                   public static void setIndex(Context c, int i) {
-                      int safe = Math.max(0, Math.min(i, queue(c).size()));
-                      p(c).edit().putInt(INDEX, safe).apply();
+                      int seguro = Math.max(0, Math.min(i, queue(c).size()));
+                      p(c).edit().putInt(INDEX, seguro).apply();
                   }
               }
           }
-          EOF
+          Fim do jogo
 
           cat > app/src/main/java/com/tecladosorteio/app/GiveawayKeyboardService.java <<'EOF'
-          package com.tecladosorteio.app;
+          pacote com.tecladosorteio.app;
 
           import android.graphics.Color;
           import android.inputmethodservice.InputMethodService;
@@ -447,57 +450,181 @@ jobs:
           import java.util.List;
 
           public class GiveawayKeyboardService extends InputMethodService {
-              private TextView info;
-              private TextView next;
-              private Button insert;
+              Informações privadas do TextView;
+              Visualização de texto privada próxima;
+              Inserir botão privado;
 
-              @Override
+              @Substituir
               public View onCreateInputView() {
-                  LinearLayout root = new LinearLayout(this);
-                  root.setOrientation(LinearLayout.VERTICAL);
-                  root.setPadding(dp(10), dp(8), dp(10), dp(8));
+                  LinearLayout raiz = novo LinearLayout(this);
+                  raiz.setOrientation(LinearLayout.VERTICAL);
+                  raiz.setPadding(dp(10), dp(8), dp(10), dp(8));
                   root.setBackgroundColor(Color.rgb(28, 28, 32));
 
                   info = label("", 13, false);
                   root.addView(info, full());
 
-                  next = label("", 21, true);
+                  próximo = rótulo("", 21, verdadeiro);
                   root.addView(next, full());
 
-                  insert = button("INSERIR PRÃ“XIMO @");
-                  insert.setOnClickListener(v -> insertNext());
+                  insert = button("INSERIR PRÓXIMO @");
+                  inserir.setOnClickListener(v -> inserirPróximo());
                   root.addView(insert, full());
 
-                  LinearLayout row = new LinearLayout(this);
-                  row.setOrientation(LinearLayout.HORIZONTAL);
+                  LinearLayout linha = novo LinearLayout(this);
+                  linha.setOrientation(LinearLayout.HORIZONTAL);
 
-                  Button undo = button("â†¶ Desfazer");
+                  Botão desfazer = botão("†¶ Desfazer");
                   undo.setOnClickListener(v -> undo());
-                  row.addView(undo, weight());
+                  linha.adicionarVisualização(desfazer, peso());
 
                   Button other = button("âŒ¨ Outro teclado");
-                  other.setOnClickListener(v -> {
-                      try {
+                  outro.setOnClickListener(v -> {
+                      tentar {
                           switchToNextInputMethod(false);
                       } catch (Throwable e) {
-                          Toast.makeText(this,
+                          Toast.makeText(isto,
                                   "Use o seletor de teclado do Android.",
                                   Toast.LENGTH_SHORT).show();
                       }
                   });
-                  row.addView(other, weight());
+                  linha.adicionarVisualização(outro, peso());
 
-                  root.addView(row, full());
-                  refresh();
-                  return root;
+                  raiz.adicionarVisualização(linha, completa());
+                  atualizar();
+                  retornar raiz;
               }
 
-              @Override
+              @Substituir
               public void onStartInputView(EditorInfo infoAttr, boolean restarting) {
-                  super.onStartInputView(infoAttr, restarting);
+                  super.onStartInputView(infoAttr, reiniciando);
 
                   int variation = infoAttr == null ? 0 :
                           (infoAttr.inputType & InputType.TYPE_MASK_VARIATION);
 
-                  boolean password =
-         
+                  senha booleana =
+                          variação == InputType.TYPE_TEXT_VARIATION_PASSWORD ||
+                          variação == InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD ||
+                          variação == InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD ||
+                          variação == InputType.TYPE_NUMBER_VARIATION_PASSWORD;
+
+                  se (inserir != nulo) {
+                      inserir.setEnabled(!senha);
+                      se (senha) {
+                          info.setText("Campo de senha detectado");
+                          next.setText("Troque para seu teclado normal");
+                      } outro {
+                          atualizar();
+                      }
+                  }
+              }
+
+              privado void inserirPróximo() {
+                  List<String> q = MainActivity.UserStore.queue(this);
+                  int idx = MainActivity.UserStore.index(this);
+
+                  se (idx >= q.size()) {
+                      Toast.makeText(this, "Fila concluída.", Toast.LENGTH_SHORT).show();
+                      atualizar();
+                      retornar;
+                  }
+
+                  InputConnection ic = getCurrentInputConnection();
+                  se (ic == nulo) retorne;
+
+                  ic.commitText("@" + q.get(idx), 1);
+                  MainActivity.UserStore.setIndex(this, idx + 1);
+                  atualizar();
+              }
+
+              privado void desfazer() {
+                  int idx = MainActivity.UserStore.index(this);
+                  se (idx <= 0) {
+                      Toast.makeText(this, "Nada para fazer.", Toast.LENGTH_SHORT).show();
+                      retornar;
+                  }
+                  MainActivity.UserStore.setIndex(this, idx - 1);
+                  atualizar();
+              }
+
+              privado void refresh() {
+                  se (info == nulo || próximo == nulo || inserir == nulo) retorne;
+
+                  List<String> q = MainActivity.UserStore.queue(this);
+                  int idx = MainActivity.UserStore.index(this);
+
+                  info.setText("Usados: " + idx + "/" + q.size() +
+                          "• Restam: " + Math.max(0, q.size() - idx));
+
+                  se (idx < q.size()) {
+                      String u = q.get(idx);
+                      next.setText("Próximo: @" + u);
+                      insert.setText("INSERIR @" + você);
+                  } outro {
+                      next.setText(q.isEmpty() ? "Nenhuma lista incluída" : "Fila concluída");
+                      insert.setText("INSERIR PRÓXIMO @");
+                  }
+              }
+
+              private TextView label(String value, int sp, boolean bold) {
+                  TextView t = new TextView(this);
+                  t.setText(valor);
+                  t.setTextColor(Color.WHITE);
+                  t.setTextSize(sp);
+                  t.setPadding(dp(4), dp(5), dp(4), dp(5));
+                  if (negrito) t.setTypeface(null, android.graphics.Typeface.BOLD);
+                  retornar t;
+              }
+
+              botão privado button(String label) {
+                  Botão b = novo Botão(este);
+                  b.setText(rótulo);
+                  b.setAllCaps(false);
+                  b.setTextSize(14);
+                  retornar b;
+              }
+
+              privado LinearLayout.LayoutParams completo() {
+                  LinearLayout.LayoutParams p = novo LinearLayout.LayoutParams(
+                          ViewGroup.LayoutParams.MATCH_PARENT,
+                          ViewGroup.LayoutParams.WRAP_CONTENT);
+                  p.setMargins(dp(2), dp(2), dp(2), dp(2));
+                  retornar p;
+              }
+
+              private LinearLayout.LayoutParams weight() {
+                  LinearLayout.LayoutParams p = novo LinearLayout.LayoutParams(
+                          0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+                  p.setMargins(dp(2), dp(2), dp(2), dp(2));
+                  retornar p;
+              }
+
+              int privado dp(int n) {
+                  retorne Math.round(n * getResources().getDisplayMetrics().density);
+              }
+          }
+          Fim do jogo
+
+      - nome: Compilador APK
+        execute: gradle --no-daemon assembleDebug
+
+      - nome: Renomear APK
+        executar: cp app/build/outputs/apk/debug/app-debug.apk Teclado-Sorteio.apk
+
+
+      - nome: Criar release com APK
+        ambiente:
+          GH_TOKEN: ${{ github.token }}
+        executar: |
+          TAG="build-${GITHUB_RUN_NUMBER}"
+          gh release create "$TAG" Teclado-Sorteio.apk \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Teclado Sorteio APK" \
+            --notes "APK gerado automaticamente pelo GitHub Actions."
+
+      - nome: Disponibilizar APK
+        utiliza: actions/upload-artifact@v4
+        com:
+          nome: to-Sorteio-APK
+          caminho: teclado-Sorteio.apk
+          dias de retenção: 30
